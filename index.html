@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Planificador de Entrenos - C.D. El Pedal de Adra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080808;--surf:#111;--card:#181818;--bdr:#262626;--acc:#c4f000;--txt:#eee;--mut:#777;--danger:#ff4040;--warn:#ff9900;--info:#3399ff;--success:#33cc77;--purple:#aa66ff;--nut:#ff7733;--gravel:#cc8833}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--txt);font-family:Barlow,Arial,sans-serif}
+body{padding:18px}
+button,input,select,textarea{font-family:inherit}
+.app{width:100%;max-width:1180px;margin:0 auto;background:#050505;border:1px solid #1f1f1f;border-radius:10px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.header{background:var(--surf);border-bottom:1px solid var(--bdr);padding:14px 18px;display:flex;align-items:center;gap:14px}
+.logo{width:34px;height:34px;background:var(--acc);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.title{font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:18px;letter-spacing:2px;text-transform:uppercase;line-height:1;color:#fff}
+.subtitle{font-family:"Barlow Condensed",Arial,sans-serif;font-size:10px;color:var(--acc);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+.tabs{display:flex;gap:0;background:var(--surf);border-bottom:1px solid var(--bdr);overflow-x:auto;padding:0 12px}
+.tab{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--mut);padding:13px 16px;cursor:pointer;font-family:"Barlow Condensed",Arial,sans-serif;font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+.tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.main{padding:26px 18px 52px;min-height:600px}
+.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+h2{font-family:"Barlow Condensed",Arial,sans-serif;font-size:32px;line-height:1;font-weight:800;letter-spacing:.5px}
+small,.muted{color:var(--mut)}
+.btn{border:0;border-radius:7px;padding:10px 17px;font-family:"Barlow Condensed",Arial,sans-serif;font-size:15px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.btn.primary{background:var(--acc);color:#060606}
+.btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--bdr)}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid rgba(255,64,64,.45)}
+.btn.orange{background:transparent;color:var(--nut);border:1px solid rgba(255,119,51,.55)}
+.btn.warn{background:transparent;color:var(--warn);border:1px solid rgba(255,153,0,.45)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:18px;position:relative}
+.empty{background:var(--card);border:1px dashed var(--bdr);border-radius:10px;padding:70px 22px;text-align:center;color:var(--mut)}
+.empty .icon{font-size:44px;margin-bottom:12px}
+.empty strong{display:block;color:var(--txt);font-size:20px;margin-bottom:8px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.field{margin-bottom:14px}
+label{display:block;font-family:"Barlow Condensed",Arial,sans-serif;color:var(--mut);font-size:11px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;margin-bottom:6px}
+input,select,textarea{width:100%;background:#060606;color:var(--txt);border:1px solid var(--bdr);border-radius:7px;padding:10px 12px;font-size:14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:rgba(196,240,0,.55)}
+select option{background:#111;color:#eee}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.badge{display:inline-block;border-radius:4px;padding:2px 8px;font-family:"Barlow Condensed",Arial,sans-serif;font-size:11px;font-weight:800;letter-spacing:.7px;text-transform:uppercase}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 14px}
+.chip{border:1px solid;border-radius:6px;padding:5px 10px;background:rgba(255,255,255,.03)}
+.chip .l{display:block;color:var(--mut);font-family:"Barlow Condensed";font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.chip .v{font-family:"Barlow Condensed";font-size:16px;font-weight:800}
+.avail{display:flex;gap:4px;flex-wrap:wrap}
+.avail span{width:31px;height:31px;border-radius:5px;border:1px solid var(--bdr);background:#242424;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:"Barlow Condensed";font-size:8px;color:var(--mut);font-weight:800;text-transform:uppercase}
+.avail span.on{background:rgba(196,240,0,.12);border-color:rgba(196,240,0,.45);color:var(--acc)}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.race-row{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:13px 14px;margin-bottom:9px}
+.datebox{min-width:44px;text-align:center;background:var(--surf);border-radius:6px;padding:6px 4px}
+.datebox .m{font-family:"Barlow Condensed";font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.datebox .d{font-family:"Barlow Condensed";font-size:22px;font-weight:800;color:var(--txt);line-height:1}
+.race-main{flex:1;min-width:0}
+.race-title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.controls{background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:16px;display:grid;grid-template-columns:minmax(180px,1fr) minmax(260px,1.2fr) auto;gap:14px;align-items:end;margin-bottom:18px}
+.week-nav{display:flex;gap:6px;align-items:center}
+.week-label{flex:1;text-align:center;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:10px 12px;color:var(--txt);font-size:13px}
+.banner{background:var(--card);border:1px solid;border-top-width:3px;border-radius:10px;padding:16px;margin-bottom:18px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.banner .phase{font-family:"Barlow Condensed";font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px}
+.days{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:13px}
+.day{border:1px solid;border-radius:10px;padding:15px;background:#141414}
+.day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;gap:8px}
+.day-name{font-family:"Barlow Condensed";font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.session-type{font-family:"Barlow Condensed";font-size:17px;font-weight:800;margin-bottom:8px}
+.zone{border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:6px 9px;margin-bottom:8px;font-size:12px}
+.detail{color:#aaa;font-size:12px;line-height:1.6}
+.detail div{margin-bottom:4px}
+.note{border-top:1px solid #2a2a2a;margin-top:10px;padding-top:8px;color:#888;font-size:11px;font-style:italic}
+.nutrition{border-top:1px solid rgba(255,119,51,.35);margin-top:10px;padding-top:8px;font-size:11px}
+.nutrition strong{color:var(--nut);font-family:"Barlow Condensed";letter-spacing:1px;text-transform:uppercase}
+.info{background:rgba(196,240,0,.06);border:1px solid rgba(196,240,0,.2);border-radius:10px;color:#999;padding:12px 14px;margin-bottom:16px;font-size:13px;line-height:1.55}
+.info b{color:var(--acc)}
+.month-wrap{overflow:auto}
+.month-inner{min-width:760px}
+.month-head,.month-row{display:flex;align-items:center}
+.month-name{width:115px;flex-shrink:0;padding-right:8px}
+.month-cell{flex:1;min-width:24px;height:30px;margin:1px;border:1px solid #222;border-radius:4px;background:#111;display:flex;align-items:center;justify-content:center;font-size:8px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.86);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px}
+.modal{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:23px}
+.modal.wide{max-width:680px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-title{font-family:"Barlow Condensed";font-size:21px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.x{background:transparent;border:0;color:var(--mut);font-size:22px;cursor:pointer}
+.checks{display:flex;gap:7px;flex-wrap:wrap}
+.pill{background:transparent;color:var(--mut);border:1px solid var(--bdr);border-radius:20px;padding:6px 11px;cursor:pointer}
+.pill.on{border-color:var(--acc);color:var(--acc);background:rgba(196,240,0,.11)}
+.pill.mtb.on{border-color:#88cc33;color:#88cc33;background:rgba(136,204,51,.11)}
+.pill.road.on{border-color:#3399ff;color:#3399ff;background:rgba(51,153,255,.11)}
+.pill.gravel.on{border-color:#cc8833;color:#cc8833;background:rgba(204,136,51,.11)}
+.error{color:var(--danger);font-size:12px;margin-top:5px}
+@media(max-width:900px){
+  body{padding:0}.app{border-radius:0;border-left:0;border-right:0}.title{font-size:15px;letter-spacing:1.2px;line-height:1.15}.subtitle{font-size:8px;letter-spacing:2px}
+  .main{padding:22px 12px 44px}.section-head{display:block}.section-head .btn{width:100%;margin-top:14px}
+  .split,.controls{grid-template-columns:1fr}.days{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.btn{width:100%}.actions .btn{width:auto}
+}
+@media print{body{background:#fff;color:#111;padding:0}.app{box-shadow:none;border:0}.header,.tabs,.controls,.section-head,.info,.actions,.btn{display:none!important}.main{padding:0}.day{break-inside:avoid;background:#fff!important;color:#111!important;border-color:#ddd!important}.detail,.note{color:#333}.banner{color:#111;background:#f7f7f7!important;border-color:#ddd!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="header">
+    <div class="logo">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#090909" stroke-width="2.6" stroke-linecap="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5.5 17.5l3-6h7l3 6"/><path d="M11.5 11.5l-2-6"/><path d="M14.5 5.5h-3.5"/></svg>
+    </div>
+    <div>
+      <div class="title">C.D. El Pedal de Adra &middot; Escuela de Ciclismo</div>
+      <div class="subtitle">Planificador autom&aacute;tico de entrenamientos</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="riders">Corredores</button>
+    <button class="tab" data-tab="calendar">Calendario</button>
+    <button class="tab" data-tab="planner">Planificador</button>
+    <button class="tab" data-tab="monthly">Resumen mensual</button>
+  </div>
+  <main class="main" id="main"></main>
+</div>
+<div id="modal-root"></div>
+
+<script>
+(function(){
+'use strict';
+
+const DAYS=['Lunes','Martes','Mi\xe9rcoles','Jueves','Viernes','S\xe1bado','Domingo'];
+const KEYS=['mon','tue','wed','thu','fri','sat','sun'];
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MONTHS2=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const TYPES=['Descanso','Recuperaci\xf3n activa','Resistencia Z2','Fondo largo Z2','Tempo','Umbral','Interv\xe1lico VO2max','Sprint/Neuromuscular','T\xe9cnica MTB','T\xe9cnica carretera','Fuerza y Core','Over-Unders','Carrera','Activaci\xf3n precompetici\xf3n','Grupal/Escuela'];
+const COLORS={
+  'Descanso':'#555','Recuperaci\xf3n activa':'#33cc77','Resistencia Z2':'#3399ff','Fondo largo Z2':'#2277dd',
+  'Tempo':'#ff9900','Umbral':'#ff6622','Interv\xe1lico VO2max':'#ff4040','Sprint/Neuromuscular':'#aa66ff',
+  'T\xe9cnica MTB':'#33cccc','T\xe9cnica carretera':'#33cccc','Fuerza y Core':'#7788ff','Over-Unders':'#ff6688',
+  'Carrera':'#ffcc00','Activaci\xf3n precompetici\xf3n':'#c4f000','Grupal/Escuela':'#ff66cc'
+};
+const MODCOL={MTB:'#88cc33',Carretera:'#3399ff',Gravel:'#cc8833'};
+const RT={MTB:['XCO','XCM','Marat\xf3n'],Carretera:['Circuito','Cronoescalada','Ruta'],Gravel:['Media marat\xf3n','Marat\xf3n']};
+const ALL_MODS=['MTB','Carretera','Gravel'];
+
+const S={
+  tab:'riders',
+  riders:load('epda:riders',[]),
+  races:load('epda:races',[]),
+  plans:load('epda:plans',{}),
+  nutrition:load('epda:cfg',{nutrition:false}).nutrition||false,
+  riderId:'',
+  week:getMonday(new Date()),
+  calY:new Date().getFullYear(),
+  calM:new Date().getMonth(),
+  monY:new Date().getFullYear(),
+  monM:new Date().getMonth()
+};
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function pad(n){return String(n).padStart(2,'0')}
+function parseISO(s){return new Date(s+'T00:00:00')}
+function fmt(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()}
+function fmts(d){return pad(d.getDate())+'/'+pad(d.getMonth()+1)}
+function addDays(d,n){let r=new Date(d);r.setDate(r.getDate()+n);return r}
+function getMonday(d){let r=new Date(d),day=r.getDay(),diff=r.getDate()-day+(day===0?-6:1);r.setDate(diff);r.setHours(0,0,0,0);return r}
+function planKey(rid,w){return rid+'_'+getMonday(w).toISOString().slice(0,10)}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function load(k,fb){try{return JSON.parse(localStorage.getItem(k))??fb}catch(e){return fb}}
+function chip(l,v,c){return `<span class="chip" style="border-color:${c}55"><span class="l">${esc(l)}</span><span class="v" style="color:${c}">${esc(v)}</span></span>`}
+function badge(v,c){return `<span class="badge" style="background:${c}22;color:${c}">${esc(v)}</span>`}
+
+function render(){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===S.tab));
+  if(S.tab==='riders') $('main').innerHTML=renderRiders();
+  if(S.tab==='calendar') $('main').innerHTML=renderCalendar();
+  if(S.tab==='planner') $('main').innerHTML=renderPlanner();
+  if(S.tab==='monthly') $('main').innerHTML=renderMonthly();
+  bind();
+}
+
+// ── RIDERS ────────────────────────────────────────────────────────────────
+function renderRiders(){
+  let h=`<div class="section-head"><div><h2>Corredores</h2><div class="muted">${S.riders.length} corredor${S.riders.length===1?' registrado':'es registrados'}</div></div><button class="btn primary" id="add-rider">+ A\xf1adir corredor</button></div>`;
+  if(!S.riders.length) return h+`<div class="empty"><div class="icon">\ud83d\udeb4</div><strong>Sin corredores a\xfan</strong><span>A\xf1ade el primer corredor para empezar a planificar.</span></div>`;
+  h+=`<div class="grid">`;
+  S.riders.forEach(r=>{
+    const total=KEYS.reduce((a,k)=>a+(Number(r.availability?.[k])||0),0);
+    const mods=(r.modalities||['MTB']);
+    let c=r.trainingMethod==='Potencia'?'#c4f000':r.trainingMethod==='Frecuencia card\xedaca'?'#ff6666':'#777';
+    const modBadges=mods.map(m=>badge(m,MODCOL[m]||'#777')).join(' ');
+    h+=`<div class="card">
+      <span style="position:absolute;right:14px;top:14px">${badge(r.category,'#c4f000')}</span>
+      <div style="font-family:'Barlow Condensed';font-size:23px;font-weight:800;padding-right:70px">${esc(r.name)}</div>
+      <div style="color:${c};font-size:12px;margin-top:2px">${esc(r.trainingMethod)}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px">${modBadges}</div>
+      <div class="chips">
+        ${r.ftp?chip('FTP',r.ftp+' W','#c4f000'):''}
+        ${r.maxHR?chip('FCmax',r.maxHR+' bpm','#ff6666'):''}
+        ${r.weight?chip('Peso',r.weight+' kg','#777'):''}
+        ${chip('h/sem',total+' h','#777')}
+      </div>
+      <label>Disponibilidad</label><div class="avail">
+      ${KEYS.map((k,i)=>`<span class="${r.availability?.[k]>0?'on':''}">${DAYS[i][0]}${r.availability?.[k]>0?`<small>${r.availability[k]}h</small>`:''}</span>`).join('')}
+      </div>
+      <div class="actions"><button class="btn ghost edit-rider" data-id="${r.id}">Editar</button><button class="btn danger del-rider" data-id="${r.id}">Eliminar</button></div>
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+// ── CALENDAR ──────────────────────────────────────────────────────────────
+function renderCalendar(){
+  let h=`<div class="section-head"><div><h2>Calendario de temporada</h2><div class="muted">${S.races.length} carrera${S.races.length===1?'':'s'}</div></div><button class="btn primary" id="add-race">+ A\xf1adir carrera</button></div>`;
+  if(!S.races.length) return h+`<div class="empty"><div class="icon">\ud83c\udfc1</div><strong>Sin carreras a\xfan</strong><span>A\xf1ade las pruebas de la temporada.</span></div>`;
+  S.races.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(r=>{
+    const d=parseISO(r.date), col=MODCOL[r.modality]||'#777';
+    const people=S.riders.filter(x=>(r.riderIds||[]).includes(x.id)).map(x=>x.name).join(', ');
+    h+=`<div class="race-row" style="border-left:4px solid ${col}">
+      <div class="datebox"><div class="m">${MONTHS2[d.getMonth()]}</div><div class="d">${d.getDate()}</div></div>
+      <div class="race-main"><div class="race-title">${esc(r.name)}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px">${badge(r.modality,col)}${badge(r.raceType,'#777')}${badge(r.intensity,r.intensity==='Full gas'?'#ff4040':'#ff9900')} ${r.duration?`<small>${r.duration}\u2032</small>`:''}</div>
+        ${people?`<div class="muted" style="font-size:11px;margin-top:4px">${esc(people)}</div>`:''}
+      </div>
+      <div class="actions" style="margin-top:0"><button class="btn ghost edit-race" data-id="${r.id}">\u270f</button><button class="btn danger del-race" data-id="${r.id}">\u2715</button></div>
+    </div>`;
+  });
+  return h;
+}
+
+// ── PLANNER ───────────────────────────────────────────────────────────────
+function renderPlanner(){
+  const rider=S.riders.find(r=>r.id===S.riderId);
+  const plan=rider?S.plans[planKey(rider.id,S.week)]:null;
+  let h=`<div class="section-head"><div><h2>Planificador autom\xe1tico</h2><div class="muted">Planificaci\xf3n local, sin Claude y sin coste por uso</div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn orange" id="toggle-nut">\ud83c\udf4a Nutrici\xf3n ${S.nutrition?'ON':'OFF'}</button></div></div>`;
+  h+=`<div class="info"><b>Sin IA:</b> el plan se genera localmente aplicando periodizaci\xf3n polarizada, fase de temporada, modalidades del corredor y carreras pr\xf3ximas.</div>`;
+  h+=`<div class="controls"><div><label>Corredor</label><select id="rider-select"><option value="">Seleccionar corredor...</option>${S.riders.map(r=>`<option value="${r.id}" ${S.riderId===r.id?'selected':''}>${esc(r.name)} (${esc(r.category)})</option>`).join('')}</select></div>
+  <div><label>Semana</label><div class="week-nav"><button class="btn ghost" id="prev-week">\u2039</button><div class="week-label">${fmt(S.week)} \u2014 ${fmt(addDays(S.week,6))}</div><button class="btn ghost" id="next-week">\u203a</button></div></div>
+  <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+    <button class="btn primary" id="gen-plan" ${rider?'':'disabled'}>\u26a1 Generar plan</button>
+    ${plan?`<button class="btn danger" id="del-plan">\ud83d\uddd1 Borrar semana</button>`:''}
+  </div></div>`;
+  if(!S.riders.length) return h+`<div class="empty"><div class="icon">\ud83d\udeb4</div><strong>Primero a\xf1ade corredores</strong><span>Despu\xe9s podr\xe1s generar planes semanales.</span></div>`;
+  if(!rider) return h+`<div class="empty"><div class="icon">\u26a1</div><strong>Selecciona un corredor</strong><span>Elige un corredor para generar su plan.</span></div>`;
+  if(!plan) return h+`<div class="empty"><div class="icon">\u26a1</div><strong>Sin plan generado</strong><span>Pulsa "Generar plan" para crear el entrenamiento de esta semana.</span></div>`;
+
+  h+=`<div class="banner" style="border-color:${plan.color}55;border-top-color:${plan.color}"><div><div class="phase" style="color:${plan.color}">${esc(plan.phase)}</div><div>${esc(plan.summary)}</div></div><div class="chips">${chip('Volumen',plan.volume,plan.color)}${chip('Control',controlText(rider),'#777')}<button class="btn ghost" id="print-plan">\ud83d\udcc4 Imprimir / PDF</button></div></div>`;
+  h+=`<div class="days">`;
+  plan.days.forEach(day=>{
+    const s=day.session, col=COLORS[s.type]||'#777', rest=s.type==='Descanso';
+    h+=`<div class="day" style="border-color:${col}55;background:${rest?'#111':col+'10'}">
+      <div class="day-head"><div><span class="day-name">${esc(day.dayName)}</span> <span class="muted">${esc(day.date)}</span></div>${s.duration?`<strong>${s.duration}\u2032</strong>`:''}</div>
+      <div class="session-type" style="color:${col}">${esc(s.type)}</div>
+      ${s.zones?`<div class="zone" style="color:${col};border-color:${col}33;background:${col}10">${esc(s.zones)}</div>`:''}
+      <div class="detail">
+        ${s.warmup?`<div><b>\u2191 Cal:</b> ${esc(s.warmup)}</div>`:''}
+        ${s.main?`<div><b>\u25c6 Bloque:</b> ${esc(s.main)}</div>`:''}
+        ${s.cool?`<div><b>\u2193 Enf:</b> ${esc(s.cool)}</div>`:''}
+        ${s.rpe?`<div><b>RPE:</b> ${s.rpe}/10</div>`:''}
+      </div>
+      ${s.note?`<div class="note">\ud83d\udca1 ${esc(s.note)}</div>`:''}
+      ${S.nutrition && s.nutrition?`<div class="nutrition"><strong>\ud83c\udf4a Nutrici\xf3n</strong><br><b>Antes:</b> ${esc(s.nutrition.pre)}<br><b>Durante:</b> ${esc(s.nutrition.during)}<br><b>Recovery:</b> ${esc(s.nutrition.rec)}</div>`:''}
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+// ── MONTHLY ───────────────────────────────────────────────────────────────
+function renderMonthly(){
+  const days=new Date(S.monY,S.monM+1,0).getDate();
+  let dates=[]; for(let i=1;i<=days;i++) dates.push(new Date(S.monY,S.monM,i));
+  let h=`<div class="section-head"><div><h2>Resumen mensual</h2><div class="muted">${MONTHS[S.monM]} ${S.monY}</div></div><div class="row"><button class="btn ghost" id="prev-month">\u2039</button><button class="btn ghost" id="next-month">\u203a</button></div></div>`;
+  if(!S.riders.length) return h+`<div class="empty"><div class="icon">\ud83d\udcca</div><strong>Sin corredores</strong><span>A\xf1ade corredores para ver el resumen mensual.</span></div>`;
+  h+=`<div class="month-wrap"><div class="month-inner"><div class="month-head"><div class="month-name"></div>${dates.map(d=>`<div class="month-cell" style="background:transparent;border:0;color:#777">${d.getDate()}</div>`).join('')}</div>`;
+  S.riders.forEach(r=>{
+    h+=`<div class="month-row"><div class="month-name"><b>${esc(r.name)}</b><br><small>${esc(r.category)}</small></div>`;
+    dates.forEach(d=>{
+      const key=planKey(r.id,d), plan=S.plans[key], idx=d.getDay()===0?6:d.getDay()-1;
+      const day=plan?.days?.[idx], race=raceOn(r,d);
+      let col='#1a1a1a', text='';
+      if(race){col=MODCOL[race.modality]||'#ffcc00'; text='\ud83c\udfc1'}
+      else if(day && day.session.type!=='Descanso'){col=COLORS[day.session.type]||'#777'}
+      else if((r.availability?.[KEYS[idx]]||0)>0){col='#333'}
+      h+=`<div class="month-cell" style="background:${col};border-color:${col}">${text}</div>`;
+    });
+    h+='</div>';
+  });
+  return h+'</div></div>';
+}
+
+// ── ZONES ────────────────────────────────────────────────────────────────
+function zones(r){
+  if(r.trainingMethod==='Potencia' && r.ftp){
+    const f=Number(r.ftp);
+    return {z1:'<'+Math.round(f*.55)+'W',z2:Math.round(f*.56)+'-'+Math.round(f*.75)+'W',z3:Math.round(f*.76)+'-'+Math.round(f*.9)+'W',z4:Math.round(f*.91)+'-'+Math.round(f*1.05)+'W',z5:Math.round(f*1.06)+'-'+Math.round(f*1.2)+'W',z6:'>'+Math.round(f*1.2)+'W'};
+  }
+  if(r.trainingMethod==='Frecuencia card\xedaca' && r.maxHR){
+    const h=Number(r.maxHR);
+    return {z1:'<'+Math.round(h*.68)+' bpm',z2:Math.round(h*.69)+'-'+Math.round(h*.83)+' bpm',z3:Math.round(h*.84)+'-'+Math.round(h*.94)+' bpm',z4:Math.round(h*.95)+'-'+Math.round(h*.97)+' bpm',z5:'>'+Math.round(h*.97)+' bpm',z6:'>'+Math.round(h*.97)+' bpm'};
+  }
+  return {z1:'RPE 1-2',z2:'RPE 3-4',z3:'RPE 5-6',z4:'RPE 7-8',z5:'RPE 9',z6:'RPE 10'};
+}
+function controlText(r){return r.trainingMethod==='Potencia'?`FTP ${r.ftp||'-'}W`:r.trainingMethod==='Frecuencia card\xedaca'?`FCmax ${r.maxHR||'-'} bpm`:'RPE'}
+function minutesToText(m){let h=Math.floor(m/60), mm=m%60; return h?(mm?`${h}h ${mm}\u2032`:`${h}h`):`${mm}\u2032`}
+function raceOn(rider,date){return S.races.find(r=>sameDate(parseISO(r.date),date)&&(!(r.riderIds||[]).length||(r.riderIds||[]).includes(rider.id)))}
+function sameDate(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+function nextRace(rider,week){return S.races.filter(r=>parseISO(r.date)>=week&&(!(r.riderIds||[]).length||(r.riderIds||[]).includes(rider.id))).sort((a,b)=>a.date.localeCompare(b.date))[0]}
+
+// ── DOMINANT MODALITY ────────────────────────────────────────────────────
+// Determine training modality from: rider.modalities + upcoming races in next 8 weeks
+function dominantMod(rider, week){
+  const riderMods = rider.modalities || ['MTB'];
+  // Count upcoming race modalities in next 56 days
+  const counts = {MTB:0, Carretera:0, Gravel:0};
+  const horizon = addDays(week, 56);
+  S.races.forEach(r=>{
+    const d = parseISO(r.date);
+    if(d >= week && d <= horizon && (!(r.riderIds||[]).length || (r.riderIds||[]).includes(rider.id))){
+      if(counts[r.modality]!==undefined) counts[r.modality]++;
+    }
+  });
+  // Weight: upcoming races count double vs rider declared modalities
+  const score = {MTB:0, Carretera:0, Gravel:0};
+  ALL_MODS.forEach(m=>{
+    score[m] = (riderMods.includes(m)?1:0) + (counts[m]*2);
+  });
+  // Pick highest score, fallback to first rider mod
+  let best = riderMods[0] || 'MTB';
+  let bestScore = -1;
+  ALL_MODS.forEach(m=>{ if(score[m]>bestScore){bestScore=score[m];best=m;} });
+  return best;
+}
+
+// ── UPCOMING RACE MODALITIES (for session flavor) ─────────────────────────
+function upcomingMods(rider, week){
+  const horizon = addDays(week, 56);
+  const mods = new Set();
+  S.races.forEach(r=>{
+    const d = parseISO(r.date);
+    if(d >= week && d <= horizon && (!(r.riderIds||[]).length || (r.riderIds||[]).includes(rider.id))){
+      mods.add(r.modality);
+    }
+  });
+  return [...mods];
+}
+
+// ── PHASE DETECTION ───────────────────────────────────────────────────────
+function phaseFor(rider,week){
+  const nr=nextRace(rider,week); if(!nr) return {name:'Fase base inicial',key:'base',color:'#3399ff',days:999};
+  const diff=Math.round((parseISO(nr.date)-week)/86400000);
+  if(diff<=6)  return {name:'Semana de competici\xf3n',key:'comp',color:'#ff4040',days:diff,race:nr};
+  if(diff<=13) return {name:'Reducci\xf3n (taper)',key:'taper',color:'#aa66ff',days:diff,race:nr};
+  if(diff<=28) return {name:'Fase de construcci\xf3n',key:'build',color:'#88cc33',days:diff,race:nr};
+  return {name:'Fase base',key:'base',color:'#3399ff',days:diff,race:nr};
+}
+
+// ── SESSION FACTORY ───────────────────────────────────────────────────────
+// mod = primary training modality; upMods = set of upcoming race modalities
+function makeSession(type, min, z, mod, cat, upMods, extra){
+  upMods = upMods || [mod];
+  const safe = Math.max(0, Math.round(min));
+  const hasMTB  = upMods.includes('MTB')  || mod==='MTB';
+  const hasRoad = upMods.includes('Carretera') || mod==='Carretera';
+  const hasGrav = upMods.includes('Gravel') || mod==='Gravel';
+
+  // Helper: pick cadence/terrain flavor
+  const cadRoad = '90-95 rpm, posici\xf3n aerod\xedn\xe2mica, trabajo de tren.';
+  const cadMTB  = '80-88 rpm, terreno variado, pedaleada potente.';
+  const cadGrav = '85-92 rpm, mixto asfalto y grava, gesti\xf3n del terreno.';
+  const cad = mod==='MTB' ? cadMTB : mod==='Gravel' ? cadGrav : cadRoad;
+
+  // Tempo sets based on duration
+  function tempoSets(m){
+    if(m>=100) return `3\xd720 min Z3 (${z.z3}), rec 5 min Z1`;
+    if(m>=75)  return `2\xd720 min Z3 (${z.z3}), rec 5 min Z1`;
+    return `2\xd715 min Z3 (${z.z3}), rec 4 min Z1`;
+  }
+  // Umbral sets
+  function umbSets(m,c){
+    if(c==='Cadete') return m>=75?`2\xd710 min Z4 (${z.z4}), rec 4 min Z1`:`2\xd78 min Z4 (${z.z4}), rec 5 min Z1`;
+    return m>=90?`3\xd710 min Z4 (${z.z4}), rec 4 min Z1`:`3\xd78 min Z4 (${z.z4}), rec 4 min Z1`;
+  }
+  // VO2max sets
+  function vo2Sets(m,c){
+    if(c==='Cadete') return m>=60?`4\xd74 min Z5 (${z.z5}), rec 4 min Z1`:`4\xd73 min Z5, rec igual`;
+    return m>=65?`5\xd74 min Z5 (${z.z5}), rec 4 min Z1`:`5\xd73 min Z5, rec igual`;
+  }
+
+  const defs = {
+    'Descanso':{
+      duration:0,zones:'',warmup:'',
+      main:'Descanso completo. Movilidad articular suave 10-15 min si apetece.',
+      cool:'',rpe:0,note:'Sin carga. El cuerpo se adapta cuando descansa.'},
+
+    'Recuperaci\xf3n activa':{
+      duration:Math.min(safe,45),zones:`Z1 \u00b7 ${z.z1}`,warmup:'',
+      main:`${Math.min(safe,45)} min muy suave. ${cad} Sin desniveles, sin presionar.`,
+      cool:'',rpe:2,note:'Debe dejar mejores sensaciones que al empezar.'},
+
+    'Resistencia Z2':{
+      duration:safe,zones:`Z2 \u00b7 ${z.z2}`,
+      warmup:'10-15 min progresivos Z1 a Z2.',
+      main:(()=>{
+        const b = Math.max(25, safe-25);
+        const extras = mod==='MTB'
+          ? 'Terreno variado. Cada 20 min, 2 aceleraciones cortas de 8 seg fuera de sill\xf3n.'
+          : hasGrav
+          ? 'Mixto asfalto y grava. Gesti\xf3n de la potencia en cambios de superficie.'
+          : 'Trabajo de cadencia 90-95 rpm y posici\xf3n. \xdaltimos 10 min en aer\xf3.' ;
+        return `${b} min Z2 estable (${z.z2}). ${extras} Ritmo conversacional.`;
+      })(),
+      cool:'10 min suaves.',rpe:3,
+      note:'El volumen en Z2 es el motor de la adaptaci\xf3n aer\xf3bica a largo plazo.'},
+
+    'Fondo largo Z2':{
+      duration:safe,zones:`Z2 \u00b7 ${z.z2}`,
+      warmup:'15 min progresivos.',
+      main:(()=>{
+        const b = Math.max(40, safe-30);
+        const suf = mod==='MTB'
+          ? `Ruta con desnivel. Incorporar 4-5 aceleraciones de 10 seg cada 30 min. Comer algo s\xf3lido a partir del min 75.`
+          : mod==='Gravel'
+          ? `Ruta larga mixta. Gesti\xf3n del esfuerzo en bacheado. Recargar bidones si hay oportunidad.`
+          : `Ruta larga. Trabajo de tren en los \xfaltimos 20 min si hay compa\xf1eros. 1 gel cada 45 min.`;
+        return `${b} min Z2 estable (${z.z2}). ${suf}`;
+      })(),
+      cool:'15 min muy suaves.',rpe:4,
+      note:'Sesi\xf3n de volumen clave. Combina perfectamente con una nutrici\xf3n completa.'},
+
+    'Tempo':{
+      duration:safe,zones:`Z3 \u00b7 ${z.z3}`,
+      warmup:'15 min progresivos con 2 aceleraciones de 20 seg.',
+      main:(()=>{
+        const sets = tempoSets(safe);
+        const suf = mod==='MTB'
+          ? `Subida de 3-6% de pendiente. Cadencia 78-85 rpm sentado.`
+          : mod==='Gravel'
+          ? `Tramo de grava firme o subida moderada. Gesti\xf3n del esfuerzo en superficie cambiante.`
+          : `Terreno llano o interior. ${cadRoad}`;
+        return `${sets}. ${suf} Mantener Z3 constante, sin picos.`;
+      })(),
+      cool:'10 min suaves.',rpe:6,
+      note:'Controlar: no convertir en umbral. Si no puedes mantener Z3 en la 2\xaa serie, baja.'},
+
+    'Umbral':{
+      duration:safe,zones:`Z4 \u00b7 ${z.z4}`,
+      warmup:'15-20 min progresivos con 3 activaciones de 30 seg a Z5 al final.',
+      main:(()=>{
+        const sets = umbSets(safe, cat);
+        const suf = mod==='MTB'
+          ? `Subida continua 6-10%. Sentado, cadencia 72-80 rpm.`
+          : mod==='Gravel'
+          ? `Subida o recta de grava. Aplicar potencia de forma uniforme.`
+          : `Terreno llano, CRI interior o exterior. Posici\xf3n aer\xf3 si es posible.`;
+        return `${sets}. ${suf}`;
+      })(),
+      cool:'10 min suaves.',rpe:8,
+      note:'Sesi\xf3n exigente. Recuperaci\xf3n 36-48h. No encadenar con otra sesi\xf3n dura.'},
+
+    'Interv\xe1lico VO2max':{
+      duration:safe,zones:`Z5 \u00b7 ${z.z5}`,
+      warmup:'15 min progresivos con 4 aceleraciones de 20 seg al 100%.',
+      main:(()=>{
+        const sets = vo2Sets(safe, cat);
+        const suf = mod==='MTB'
+          ? `Repechos del 8-12%. Salida explosiva en cada repetici\xf3n.`
+          : `Esfuerzo m\xe1ximo sostenido. Cadencia libre, lo que permita mantener la potencia.`;
+        return `${sets}. ${suf} Objetivo: mantener la misma potencia/FC en todas las series.`;
+      })(),
+      cool:'10 min muy suaves.',rpe:9,
+      note:'M\xe1xima calidad en cada intervalo. Descanso completo entre series. No repetir en menos de 5 d\xedas.'},
+
+    'Sprint/Neuromuscular':{
+      duration:safe,zones:`Z6 / m\xe1ximo \u00b7 ${z.z6}`,
+      warmup:'15 min progresivos con 2 sprints al 70% y 80%.',
+      main:(()=>{
+        const terrain = mod==='MTB'
+          ? 'Pista firme o hierba. Alternando sentado y de pie.'
+          : mod==='Gravel'
+          ? 'Tramo de grava compacta o asfalto. Salida desde parado o a velocidad.'
+          : 'Carretera plana o ligera rampa 2-3%.';
+        return `8\xd710 seg sprint m\xe1ximo, rec 3 min completa. ${terrain} M\xe1xima aplicaci\xf3n de fuerza desde los primeros pedaleadas.`;
+      })(),
+      cool:'10 min muy suaves.',rpe:10,
+      note:'Pocos sprints, todos al 100%. El descanso entre series debe ser completo.'},
+
+    'T\xe9cnica MTB':{
+      duration:safe,zones:`Z1-Z2 \u00b7 ${z.z1} a ${z.z2}`,
+      warmup:'10 min rodaje suave.',
+      main:'Bloques de 15 min: (1) equilibrio y maniobras a baja velocidad. (2) descensos controlados y posici\xf3n de ataque. (3) subidas t\xe9cnicas, trocear y atacar repechos. (4) salidas explosivas y aceleraciones cortas.',
+      cool:'5-10 min suaves.',rpe:3,
+      note:'La t\xe9cnica genera fatiga neuromuscular aunque el coraz\xf3n no suba. Concentraci\xf3n m\xe1xima.'},
+
+    'T\xe9cnica carretera':{
+      duration:safe,zones:`Z1-Z2 \u00b7 ${z.z1} a ${z.z2}`,
+      warmup:'10 min rodaje suave.',
+      main:'(1) 15 min trabajo de cadencia alta 100-110 rpm. (2) 15 min relevos y posicionamiento en grupo. (3) 10 min sprint desde velocidad (posici\xf3n aerod\xedn\xe2mica y aceleraci\xf3n). (4) 10 min contrarreloj de intensidad media Z3.',
+      cool:'10 min suaves.',rpe:4,
+      note:'Perfeccionar gestos t\xe9cnicos reduce el gasto energ\xe9tico en carrera.'},
+
+    'Fuerza y Core':{
+      duration:safe,zones:'RPE 6-7',
+      warmup:'10 min movilidad articular din\xe2mica (cadera, rodilla, tobillo).',
+      main:'3 series: (1) 10 sentadillas una pierna. (2) 12 peso muerto ruma\xf1o. (3) 30 seg plancha lateral c/lado. (4) 12 puentes de gl\xfateo con banda. Rec 90 seg entre series.',
+      cool:'Estiramientos est\xe1ticos 10 min. Especial atencion isquios y psoas.',
+      rpe:6,note:'Cargas moderadas con t\xe9cnica perfecta. No el d\xeda antes de una sesi\xf3n intensa.'},
+
+    'Over-Unders':{
+      duration:safe,zones:`Z3-Z4 \u00b7 ${z.z3} a ${z.z4}`,
+      warmup:'15 min progresivos con 2 activaciones.',
+      main:(()=>{
+        const rep = safe>=80?3:2;
+        return `${rep} series de 10 min: alterna 2 min Under Z3 (${z.z3}) + 1 min Over Z4 (${z.z4}), repetir 3 veces. Rec 5 min Z1. Ideal para ${mod==='MTB'?'XCM y fondos con cambios de ritmo':'criteriums y finales con cambios de ritmo'}.`;
+      })(),
+      cool:'10 min suaves.',rpe:7,
+      note:'Los cambios Under-Over ense\xf1an al cuerpo a tolerar y limpiar lactato. Excelente para pruebas con ritmo irregular.'},
+
+    'Activaci\xf3n precompetici\xf3n':{
+      duration:Math.min(safe,50),zones:`Z1-Z2 + 3 toques Z4`,
+      warmup:'15 min muy suaves Z1.',
+      main:`15 min Z2 (${z.z2}) + 3 aceleraciones de 45 seg a ritmo carrera (${z.z4||'Z4'}), rec 2 min Z1 entre ellas. Cadencia alta 95-100 rpm. 5 min Z2 final.`,
+      cool:'10 min vuelta a la calma.',rpe:4,
+      note:'Despertar piernas sin fatigar. No a\xf1adir carga. Concentrarse en sensaciones.'},
+
+    'Grupal/Escuela':{
+      duration:Math.min(safe,110),zones:`Z2 \u00b7 ${z.z2} + t\xe9cnica grupal`,
+      warmup:'10 min en grupo.',
+      main:(()=>{
+        const b = Math.min(safe-20, 90);
+        const extra = mod==='MTB'
+          ? '3 simulacros de ataque en repecho, cierre y reincorporaci\xf3n. T\xe9cnica de descenso en grupo.'
+          : mod==='Gravel'
+          ? 'Trabajo de ritmo variable en grava, relevos y gesti\xf3n de grupo en superficie mixta.'
+          : 'Trabajo de tren, relevos cada 2 min y 3 sprints finales controlados de 200m.';
+        return `${b} min fondo Z2 grupal. ${extra}`;
+      })(),
+      cool:'10 min suaves en grupo.',rpe:4,
+      note:'Mantener orden: el fondo no debe convertirse en carrera. Aprovechar para practicar comunicaci\xf3n en grupo.'},
+  };
+
+  let s = defs[type] || defs['Descanso'];
+  s = Object.assign({}, s); // clone
+  s.type = type;
+  if(extra) Object.assign(s, extra);
+  if(S.nutrition && type!=='Descanso') s.nutrition = nutrition(s);
+  return s;
+}
+
+// ── NUTRITION ─────────────────────────────────────────────────────────────
+function nutrition(s){
+  const d=s.duration||0, r=s.rpe||0;
+  return {
+    pre: d<60?'Agua y comida normal. Opcional pl\xe1tano 30 min antes.':
+         d<120?'Avena o tostada 2h antes + pl\xe1tano 30 min antes.':
+         'Cena rica en HC la noche anterior. Avena + miel 2h antes + 500ml agua.',
+    during: d<60?'Agua 400-500ml.':
+            d<90?'1 bid\xf3n 500ml (malto+fructosa+Evolytes). Empezar desde el min 15.':
+            d<150?'1 bid\xf3n/hora + 1 gel casero (95g CHO) cada 45 min.':
+            '1 bid\xf3n/hora + 1 gel cada 40 min. A partir de 2h, comida s\xf3lida opcional.',
+    rec: r<=2?'No necesario. Comida normal.':
+         r<=4?'Pl\xe1tano + vaso de leche. Recovery formal no necesario.':
+         r<=6?'Recovery base: whey 25g + malto 20g + dextrosa 10g + creatina 3g.':
+         r<=8?'Recovery aumentado: whey 25g + malto 25g + dextrosa 15g + creatina 3g + glutamina 8g.':
+         'Recovery m\xe1ximo: whey 30g + malto 30g + dextrosa 20g + creatina 5g + glutamina 10g. Tomar en 20 min.'
+  };
+}
+
+// ── PLAN GENERATOR ────────────────────────────────────────────────────────
+function generatePlan(rider){
+  const z    = zones(rider);
+  const ph   = phaseFor(rider, S.week);
+  const mod  = dominantMod(rider, S.week);   // primary training modality
+  const upM  = upcomingMods(rider, S.week);  // all upcoming modalities (next 8 weeks)
+  const cat  = rider.category;
+  const hasMTBrace = upM.includes('MTB');
+
+  let days=[], total=0, hardDone=0;
+  const av = KEYS.map(k=>Math.round((Number(rider.availability?.[k])||0)*60));
+
+  // Sort indices by available minutes descending — quality goes to longest days
+  const sortedIdx = av.map((m,i)=>({m,i})).sort((a,b)=>b.m-a.m).map(x=>x.i);
+  const maxIdx = sortedIdx; // maxIdx[0] = biggest day, [1] = second, etc.
+
+  for(let i=0;i<7;i++){
+    const date = addDays(S.week, i);
+    const race = raceOn(rider, date);
+    const m    = av[i]; // available minutes today
+    let type='Descanso', dur=0, extra={};
+
+    if(race){
+      // Race day
+      type = 'Carrera'; dur = race.duration || 90;
+      extra = {
+        zones: race.intensity==='Full gas'?'Competici\xf3n m\xe1xima':'Competici\xf3n controlada',
+        warmup: '20 min progresivos antes de la salida.',
+        main: `${race.name} \u00b7 ${race.modality} ${race.raceType}.`,
+        cool: '10-15 min suaves tras llegar.',
+        rpe: race.intensity==='Full gas'?10:7,
+        note: 'Recovery obligatorio tras la prueba. Batido en los primeros 20 min.'
+      };
+    } else if(!m){
+      type='Descanso'; dur=0;
+    } else if(ph.key==='comp'){
+      // Competition week
+      const dtr = ph.days - i; // days to race from this day
+      if(dtr===1){type='Descanso'; dur=0; extra={note:'Descanso el d\xeda antes de competir. Hidrataci\xf3n y sue\xf1o prioritarios.'};}
+      else if(dtr===2){type='Activaci\xf3n precompetici\xf3n'; dur=Math.min(m,50);}
+      else if(m>=50){type='Resistencia Z2'; dur=Math.min(m,60);}
+      else {type='Recuperaci\xf3n activa'; dur=Math.min(m,40);}
+    } else if(ph.key==='taper'){
+      // Taper: volume -40%, keep one activation
+      const tapM = Math.round(m*0.6);
+      if(maxIdx[0]===i && tapM>=40 && hardDone===0){
+        type='Activaci\xf3n precompetici\xf3n'; dur=Math.min(tapM,50); hardDone++;
+      } else if(tapM>=35){type='Resistencia Z2'; dur=Math.min(tapM,55);}
+      else {type='Recuperaci\xf3n activa'; dur=Math.min(tapM,40);}
+    } else if(ph.key==='build'){
+      // Build phase: 1-2 quality sessions + volume
+      const rank = maxIdx.indexOf(i);
+      const groupMates = S.riders.filter(x=>x.id!==rider.id&&(Number(x.availability?.[KEYS[i]])||0)>0);
+      if(rank===0 && m>=70 && hardDone===0){
+        type = cat==='Cadete'?'Umbral':(mod==='Carretera'?'Over-Unders':'Umbral');
+        dur=m; hardDone++;
+      } else if(rank===1 && m>=60 && hardDone<2){
+        type = cat==='Cadete'?'Tempo':'Interv\xe1lico VO2max';
+        dur=Math.min(m,80); hardDone++;
+      } else if(groupMates.length && m>=60 && ph.key!=='taper'){
+        type='Grupal/Escuela'; dur=Math.min(m,110);
+      } else if(m>=120){
+        type='Fondo largo Z2'; dur=m;
+      } else if(m>=60){
+        type='Resistencia Z2'; dur=m;
+      } else if(m>=40){
+        type='Resistencia Z2'; dur=m;
+      } else {
+        type='Recuperaci\xf3n activa'; dur=Math.min(m,40);
+      }
+    } else {
+      // Base phase
+      const rank = maxIdx.indexOf(i);
+      const groupMates = S.riders.filter(x=>x.id!==rider.id&&(Number(x.availability?.[KEYS[i]])||0)>0);
+
+      if(rank===0 && m>=90){
+        type='Fondo largo Z2'; dur=m;
+      } else if(rank===1 && m>=70 && hardDone===0){
+        type='Tempo'; dur=m; hardDone++;
+      } else if(rank===2 && m>=55 && hasMTBrace && mod==='MTB'){
+        type='T\xe9cnica MTB'; dur=m;
+      } else if(rank===2 && m>=55 && !hasMTBrace){
+        type='T\xe9cnica carretera'; dur=m;
+      } else if(groupMates.length && m>=60){
+        type='Grupal/Escuela'; dur=Math.min(m,110);
+      } else if(m>=120){
+        type='Fondo largo Z2'; dur=m;
+      } else if(m>=50){
+        type='Resistencia Z2'; dur=m;
+      } else if(m>=35){
+        // Still do something useful: short Z2 or strength
+        if(rank<=3 && m>=45){type='Fuerza y Core'; dur=m;}
+        else {type='Resistencia Z2'; dur=m;}
+      } else {
+        type='Recuperaci\xf3n activa'; dur=Math.min(m,35);
+      }
+    }
+
+    // Constrain hard sessions not to exceed available time
+    if(type!=='Descanso') dur = Math.min(dur, m);
+
+    const session = type==='Carrera'
+      ? Object.assign(makeSession('Carrera', dur, z, mod, cat, upM), extra)
+      : makeSession(type, dur, z, mod, cat, upM, extra);
+
+    if(session.type!=='Descanso') total += session.duration||0;
+    days.push({dayName:DAYS[i], date:fmts(date), available:m>0, availableHours:m/60, session});
+  }
+
+  const nr = ph.race ? ` Pr\xf3xima carrera en ${ph.days} d\xedas: ${ph.race.name}.` : '';
+  return {
+    phase: ph.name,
+    color: ph.color,
+    summary: `${ph.name}. Modalidad dominante: ${mod}. Plan adaptado a disponibilidad y calendario.${nr}`,
+    volume: minutesToText(total),
+    totalMinutes: total,
+    days
+  };
+}
+
+// ── MODALS ────────────────────────────────────────────────────────────────
+function modal(html, wide=false){
+  $('modal-root').innerHTML=`<div class="modal-bg"><div class="modal ${wide?'wide':''}">${html}</div></div>`;
+  document.querySelector('.modal-bg').onclick=e=>{if(e.target.className==='modal-bg') closeModal()};
+}
+function closeModal(){$('modal-root').innerHTML=''}
+
+function riderModal(id){
+  const r = S.riders.find(x=>x.id===id) || {
+    name:'', category:'Cadete', trainingMethod:'RPE',
+    ftp:'', maxHR:'', weight:'', modalities:['MTB'],
+    availability:{mon:0,tue:0,wed:0,thu:0,fri:0,sat:0,sun:0}
+  };
+  const rMods = r.modalities || ['MTB'];
+  const opts=[0,.5,1,1.5,2,2.5,3,3.5,4,4.5,5];
+  modal(`<div class="modal-head"><div class="modal-title">${id?'Editar':'Nuevo'} corredor</div><button class="x" id="close">\xd7</button></div>
+  <div class="field"><label>Nombre</label><input id="r-name" value="${esc(r.name)}"><div class="error" id="r-error"></div></div>
+  <div class="split"><div class="field"><label>Categor\xeda</label><select id="r-cat">${['Cadete','Junior','Master'].map(x=>`<option ${r.category===x?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div class="field"><label>M\xe9todo</label><select id="r-method">${['RPE','Frecuencia card\xedaca','Potencia'].map(x=>`<option ${r.trainingMethod===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+  <div class="split"><div class="field"><label>FTP (W)</label><input id="r-ftp" type="number" value="${esc(r.ftp)}"></div><div class="field"><label>FCmax</label><input id="r-hr" type="number" value="${esc(r.maxHR)}"></div></div>
+  <div class="field"><label>Peso (kg)</label><input id="r-weight" type="number" value="${esc(r.weight)}"></div>
+  <div class="field"><label>Modalidades que practica</label>
+    <div class="checks" style="margin-top:6px">
+      <button type="button" class="pill mtb ${rMods.includes('MTB')?'on':''}" data-mod="MTB">&#9650; MTB</button>
+      <button type="button" class="pill road ${rMods.includes('Carretera')?'on':''}" data-mod="Carretera">&#9651; Carretera</button>
+      <button type="button" class="pill gravel ${rMods.includes('Gravel')?'on':''}" data-mod="Gravel">&#9650; Gravel</button>
+    </div>
+  </div>
+  <div class="field"><label>Disponibilidad semanal</label><div class="split" style="grid-template-columns:repeat(7,1fr);gap:6px">${KEYS.map((k,i)=>`<div><small>${DAYS[i].slice(0,2)}</small><select id="av-${k}">${opts.map(o=>`<option value="${o}" ${(Number(r.availability?.[k])||0)===o?'selected':''}>${o?o+'h':'\u2014'}</option>`).join('')}</select></div>`).join('')}</div></div>
+  <div class="actions"><button class="btn ghost" id="cancel">Cancelar</button><button class="btn primary" id="save-rider">Guardar</button></div>`);
+  $('close').onclick = $('cancel').onclick = closeModal;
+  // Toggle modality pills
+  document.querySelectorAll('.pill[data-mod]').forEach(p=>p.onclick=()=>p.classList.toggle('on'));
+  $('save-rider').onclick=()=>{
+    const name=$('r-name').value.trim();
+    if(!name){$('r-error').textContent='El nombre es obligatorio'; return}
+    const method=$('r-method').value;
+    const selectedMods = Array.from(document.querySelectorAll('.pill[data-mod].on')).map(p=>p.dataset.mod);
+    const data={
+      id:id||uid(), name, category:$('r-cat').value, trainingMethod:method,
+      ftp:method==='Potencia'?Number($('r-ftp').value)||0:0,
+      maxHR:method==='Frecuencia card\xedaca'?Number($('r-hr').value)||0:0,
+      weight:Number($('r-weight').value)||0,
+      modalities:selectedMods.length?selectedMods:['MTB'],
+      availability:{}
+    };
+    KEYS.forEach(k=>data.availability[k]=Number($('av-'+k).value)||0);
+    S.riders = id ? S.riders.map(x=>x.id===id?data:x) : S.riders.concat(data);
+    save('epda:riders', S.riders); closeModal(); render();
+  };
+}
+
+function raceModal(id){
+  const r = S.races.find(x=>x.id===id)||{name:'',date:new Date().toISOString().slice(0,10),modality:'MTB',raceType:'XCO',duration:90,intensity:'Full gas',riderIds:[],notes:''};
+  modal(`<div class="modal-head"><div class="modal-title">${id?'Editar':'Nueva'} carrera</div><button class="x" id="close">\xd7</button></div>
+  <div class="field"><label>Nombre de la prueba</label><input id="c-name" value="${esc(r.name)}"><div class="error" id="c-error"></div></div>
+  <div class="split"><div class="field"><label>Fecha</label><input id="c-date" type="date" value="${esc(r.date)}"></div><div class="field"><label>Duraci\xf3n (min)</label><input id="c-dur" type="number" value="${esc(r.duration)}"></div></div>
+  <div class="split"><div class="field"><label>Modalidad</label><select id="c-mod">${['MTB','Carretera','Gravel'].map(x=>`<option ${r.modality===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="field"><label>Tipo</label><select id="c-type"></select></div></div>
+  <div class="field"><label>Objetivo</label><select id="c-int"><option ${r.intensity==='Entrenamiento de calidad'?'selected':''}>Entrenamiento de calidad</option><option ${r.intensity==='Full gas'?'selected':''}>Full gas</option></select></div>
+  <div class="field"><label>Corredores participantes</label><div class="checks">${S.riders.map(x=>`<button class="pill ${(r.riderIds||[]).includes(x.id)?'on':''}" data-id="${x.id}">${esc(x.name)}</button>`).join('')||'<small>No hay corredores a\xfan.</small>'}</div></div>
+  <div class="actions"><button class="btn ghost" id="cancel">Cancelar</button><button class="btn primary" id="save-race">Guardar</button></div>`,true);
+  function fillTypes(){const mod=$('c-mod').value;$('c-type').innerHTML=(RT[mod]||[]).map(x=>`<option ${r.raceType===x?'selected':''}>${x}</option>`).join('')}
+  $('c-mod').onchange=fillTypes; fillTypes();
+  document.querySelectorAll('.pill').forEach(p=>p.onclick=()=>p.classList.toggle('on'));
+  $('close').onclick=$('cancel').onclick=closeModal;
+  $('save-race').onclick=()=>{
+    const name=$('c-name').value.trim(); if(!name){$('c-error').textContent='El nombre es obligatorio'; return}
+    const data={id:id||uid(),name,date:$('c-date').value,modality:$('c-mod').value,raceType:$('c-type').value,duration:Number($('c-dur').value)||0,intensity:$('c-int').value,riderIds:Array.from(document.querySelectorAll('.pill.on')).map(x=>x.dataset.id)};
+    S.races = id ? S.races.map(x=>x.id===id?data:x) : S.races.concat(data);
+    save('epda:races', S.races); closeModal(); render();
+  };
+}
+
+function confirmDelete(text,cb){
+  modal(`<div class="modal-head"><div class="modal-title">Confirmar</div><button class="x" id="close">\xd7</button></div><p style="color:#ccc;margin-bottom:18px">${esc(text)}</p><div class="actions"><button class="btn ghost" id="cancel">Cancelar</button><button class="btn danger" id="ok">Eliminar</button></div>`);
+  $('close').onclick=$('cancel').onclick=closeModal;
+  $('ok').onclick=()=>{cb();closeModal();render()};
+}
+
+// ── EVENT BINDING ─────────────────────────────────────────────────────────
+function bind(){
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;render()});
+  const ar=$('add-rider');    if(ar) ar.onclick=()=>riderModal();
+  const ac=$('add-race');     if(ac) ac.onclick=()=>raceModal();
+  document.querySelectorAll('.edit-rider').forEach(b=>b.onclick=()=>riderModal(b.dataset.id));
+  document.querySelectorAll('.del-rider').forEach(b=>b.onclick=()=>confirmDelete('\xbfEliminar este corredor?',()=>{S.riders=S.riders.filter(x=>x.id!==b.dataset.id);save('epda:riders',S.riders)}));
+  document.querySelectorAll('.edit-race').forEach(b=>b.onclick=()=>raceModal(b.dataset.id));
+  document.querySelectorAll('.del-race').forEach(b=>b.onclick=()=>confirmDelete('\xbfEliminar esta carrera?',()=>{S.races=S.races.filter(x=>x.id!==b.dataset.id);save('epda:races',S.races)}));
+  const rs=$('rider-select'); if(rs) rs.onchange=()=>{S.riderId=rs.value;render()};
+  const pw=$('prev-week');    if(pw) pw.onclick=()=>{S.week=addDays(S.week,-7);render()};
+  const nw=$('next-week');    if(nw) nw.onclick=()=>{S.week=addDays(S.week,7);render()};
+  const gp=$('gen-plan');     if(gp) gp.onclick=()=>{
+    const r=S.riders.find(x=>x.id===S.riderId); if(!r) return;
+    S.plans[planKey(r.id,S.week)]=generatePlan(r);
+    save('epda:plans',S.plans); render();
+  };
+  const dp=$('del-plan');     if(dp) dp.onclick=()=>{
+    const r=S.riders.find(x=>x.id===S.riderId); if(!r) return;
+    confirmDelete('\xbfBorrar el plan de esta semana? Los datos de disponibilidad del corredor no se modifican.', ()=>{
+      delete S.plans[planKey(r.id,S.week)];
+      save('epda:plans',S.plans);
+    });
+  };
+  const tn=$('toggle-nut');   if(tn) tn.onclick=()=>{S.nutrition=!S.nutrition;save('epda:cfg',{nutrition:S.nutrition});render()};
+  const pp=$('print-plan');   if(pp) pp.onclick=()=>window.print();
+  const pm=$('prev-month');   if(pm) pm.onclick=()=>{S.monM--;if(S.monM<0){S.monM=11;S.monY--}render()};
+  const nm=$('next-month');   if(nm) nm.onclick=()=>{S.monM++;if(S.monM>11){S.monM=0;S.monY++}render()};
+}
+
+render();
+})();
+</script>
+</body>
+</html>
